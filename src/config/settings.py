@@ -145,3 +145,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 CELERY_BROKER_URL = settings.REDIS_URL
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+
+CELERY_BEAT_SCHEDULE = {
+    "update-every-10-minutes": {
+        "task": "currency.tasks.update_rates",
+        "schedule": 600.0,
+    },
+}
