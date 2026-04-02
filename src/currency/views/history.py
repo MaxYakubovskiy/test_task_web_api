@@ -8,16 +8,19 @@ from ..serializers import HistorySerializer
 class CurrencyHistoryView(APIView):
     def get(self, request):
         serializer = HistorySerializer(data=request.query_params)
-        if serializer.is_valid():
-            code = serializer.validated_data["code"].upper()
-            start = serializer.validated_data["start_date"]
-            end = serializer.validated_data["end_date"]
+        serializer.is_valid(raise_exception=True)
 
-            try:
-                currency = Currency.objects.get(code=code)
-                rates = currency.rates.filter(created_at__date__gte=start, created_at__date__lte=end)
-                data = [{"rate": r.rate, "date": r.created_at} for r in rates]
-                return Response({"code": code, "history": data}, status=status.HTTP_200_OK)
-            except Currency.DoesNotExist:
-                return Response({"detail": f"Currency {code} not found."}, status=status.HTTP_404_NOT_FOUND)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        code = serializer.validated_data["code"].upper()
+        start_date = serializer.validated_data["start_date"]
+        end_date = serializer.validated_data["end_date"]
+
+        rates = Currency.objects.filter(
+            currency_code=code,
+            date__date__gte=start_date,
+            date__date__lte=end_date
+        ).order_by("date")
+
+        data = [
+            {"date": r.date, "rate": r.rate} for r in rates
+        ]
+        return Response(data, status=status.HTTP_200_OK)
