@@ -29,6 +29,8 @@ class Settings(BaseSettings):
 
     REDIS_URL: str = "redis://localhost:6379/0"
 
+    API_URL: str
+
     class Config:
         env_file = BASE_DIR.parent / ".env"
 
