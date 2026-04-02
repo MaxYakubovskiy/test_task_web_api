@@ -1,13 +1,11 @@
 import requests
-from dataclasses import dataclass
-from src.config.settings import settings
+from config.settings import settings
 from typing import Optional, List, Tuple
 from currency.models import Currency, CurrencyRate
 
 
-@dataclass
 class CurrencyService:
-    url: settings.API_URL
+    url = settings.API_URL
 
     @staticmethod
     def get_rates() -> Optional[List[dict]]:
@@ -15,18 +13,28 @@ class CurrencyService:
         return response.json() if response.ok else None
 
     @staticmethod
-    def parse_rates(data: List[dict]) -> List[Tuple[str, float]]:
+    def parse_rates(data: list[dict]) -> list[tuple[str, float]]:
         mapping = {
             840: "USD",
-            978: "EUR"
+            978: "EUR",
+            826: "GBP",
+            392: "JPY",
+            756: "CHF",
+            124: "CAD"
         }
 
         result = []
 
-        for i in data:
-            code = mapping.get(i.get("currencyCodeA"))
-            rate = i.get("rateBuy")
-            if code and rate:
+        for item in data:
+            code = mapping.get(item.get("currencyCodeA"))
+            if not code:
+                continue
+
+            rate = item.get("rateBuy") or item.get("rateCross")
+            if item.get("currencyCodeB") != 980:
+                continue
+
+            if rate:
                 result.append((code, rate))
 
         return result

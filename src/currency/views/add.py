@@ -1,8 +1,8 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from src.currency.models import Currency
-from src.currency.serializers import AddCurrencySerializer
+from ..models import Currency
+from ..serializers import AddCurrencySerializer
 
 
 class AddCurrencyView(APIView):
